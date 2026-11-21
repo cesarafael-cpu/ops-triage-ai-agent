@@ -1,0 +1,17 @@
+# Ambientes virtuais Python
+.venv/
+env/
+venv/
+ENV/
+
+# Arquivos de configuracao e chaves de API secretas (NUNCA SUBIR)
+.env
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos temporarios de SO
+.DS_Store
+Thumbs.db

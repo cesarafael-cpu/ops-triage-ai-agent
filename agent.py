@@ -44,8 +44,8 @@ DIRETRIZES DE EXECUCAO:
 
 def obter_lista_modelos():
     """Recupera o modelo primario e a lista de fallbacks a partir do ambiente ou usa valores default."""
-    modelo_primario = os.getenv("GEMINI_PRIMARY_MODEL", "gemini-3.5-flash").strip()
-    fallbacks_raw = os.getenv("GEMINI_FALLBACK_MODELS", "gemini-3.1-flash-lite,gemini-3.7-flash,gemini-3.8-flash")
+    modelo_primario = os.getenv("GEMINI_PRIMARY_MODEL", "gemini-3.1-flash-lite").strip()
+    fallbacks_raw = os.getenv("GEMINI_FALLBACK_MODELS", "gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.7-flash,gemini-3.8-flash")
     fallbacks = [m.strip() for m in fallbacks_raw.split(",") if m.strip()]
     
     modelos = [modelo_primario]

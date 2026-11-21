@@ -56,9 +56,10 @@ ops-triage-ai-agent/
 ├── evals/
 │   └── casos_teste.json        # Conjunto de testes e cenários de avaliação (Evals)
 ├── scripts/
-│   └── check_models.py         # Diagnóstico de modelos disponíveis na API
+│   ├── check_models.py         # Diagnóstico de modelos disponíveis na API
+│   └── run_evals.py            # Runner de benchmark e avaliação de cenários (Evals)
 ├── tests/
-│   └── test_tools.py           # Testes unitários determinísticos com Pytest
+│   └── test_tools.py           # Testes unitários herméticos com pytest (tmp_path)
 ├── .env.example                # Modelo de variáveis de ambiente
 ├── .gitignore                  # Proteção de credenciais e caches
 ├── agent.py                    # Cérebro do agente, observabilidade e loop interativo
@@ -108,10 +109,20 @@ python agent.py --teste
 
 ## 🧪 Suíte de Testes Unitários
 
-O projeto conta com testes unitários determinísticos cobrindo persistência relacional, unicidade de protocolos e consultas à base de conhecimento:
+O projeto conta com testes unitários determinísticos cobrindo persistência relacional, unicidade de protocolos e isolamento hermético com fixtures `tmp_path`:
 
 ```bash
 pytest tests/
+```
+
+---
+
+## 🎯 Avaliação e Benchmark Agêntico (Evals)
+
+Para validar a qualidade da tomada de decisão agêntica e resistência a prompt injection, execute a suíte de avaliações:
+
+```bash
+python scripts/run_evals.py
 ```
 
 Saída esperada:

@@ -1,62 +1,157 @@
 """
-tools.py - Ferramentas (Tools) disponíveis para o Agente de Operações.
-Em projetos reais, estas funções chamam APIs reais (Slack Webhooks, Google Sheets API, Notion, etc).
+tools.py - Ferramentas com SQLite Nativo, Tipagem Estrita e Busca em Base de Conhecimento.
 """
 
+import os
+import sqlite3
 import json
+import uuid
 from datetime import datetime
+from typing import Literal
 
-# Banco de dados simulado em memória para o FAQ / Base de Conhecimento
-KNOWLEDGE_BASE = {
-    "reembolso": "Politica de Reembolso: O cliente tem ate 7 dias corridos para solicitar. Envie link: empresa.com/reembolso.",
-    "erro_login": "Erro 500 no login: Orientar o usuario a limpar cookies/cache ou resetar a senha via portal de acesso.",
-    "faturamento": "Faturamento/NF: Notas sao emitidas sempre no dia 5 util de cada mes pelo setor financeiro (financeiro@empresa.com).",
-    "status_servidor": "Sistemas operando normalmente (99.9% uptime). Nenhuma instabilidade detectada hoje."
-}
+DB_PATH = os.path.join(os.path.dirname(__file__), "data", "ops_triage.db")
+KNOWLEDGE_PATH = os.path.join(os.path.dirname(__file__), "data", "procedimentos.txt")
+
+# Tipagens estritas para garantir que o LLM so utilize categorias e urgencias validas
+UrgenciaType = Literal["BAIXA", "MEDIA", "ALTA", "CRITICA"]
+CategoriaType = Literal["Suporte Tecnico", "Financeiro", "Comercial", "Operacoes", "Outros"]
+
+
+def inicializar_banco():
+    """Garante a criacao da tabela de chamados e indices no SQLite."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chamados (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                protocolo TEXT UNIQUE NOT NULL,
+                data_hora TEXT NOT NULL,
+                cliente TEXT NOT NULL,
+                categoria TEXT NOT NULL,
+                urgencia TEXT NOT NULL,
+                resumo TEXT NOT NULL,
+                status TEXT NOT NULL
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cliente ON chamados(cliente)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_urgencia ON chamados(urgencia)")
+        conn.commit()
+
+
+# Inicializa o banco automaticamente ao carregar o modulo
+inicializar_banco()
+
 
 def consultar_base_conhecimento(termo_busca: str) -> str:
     """
-    Pesquisa informacoes internas na base de conhecimento da empresa (FAQ, politicas, procedimentos).
+    Pesquisa procedimentos e politicas internas na base de conhecimento oficial (data/procedimentos.txt).
     
     Args:
-        termo_busca: Palavra-chave ou topico a ser pesquisado (ex: 'reembolso', 'erro_login', 'faturamento').
+        termo_busca: Palavra-chave ou assunto a consultar (ex: 'reembolso', 'login', 'nota fiscal', 'desconto').
     """
-    print(f"\n[TOOL EXECUTADA] consultar_base_conhecimento com termo: '{termo_busca}'")
+    print(f"\n⚙️  [TOOL] consultar_base_conhecimento(termo='{termo_busca}')")
+    if not os.path.exists(KNOWLEDGE_PATH):
+        return json.dumps({"status": "erro", "mensagem": "Arquivo de procedimentos nao encontrado."}, ensure_ascii=False)
+
+    with open(KNOWLEDGE_PATH, "r", encoding="utf-8") as f:
+        linhas = f.readlines()
+
+    resultados = []
+    bloco_atual = []
+    relevante = False
     termo = termo_busca.lower()
-    for chave, conteudo in KNOWLEDGE_BASE.items():
-        if chave in termo or termo in chave:
-            return json.dumps({"status": "encontrado", "resultado": conteudo}, ensure_ascii=False)
-            
-    return json.dumps({"status": "nao_encontrado", "mensagem": "Nenhum procedimento especifico encontrado. Recomenda-se encaminhamento humano."}, ensure_ascii=False)
+
+    for linha in linhas:
+        if linha.startswith("["):
+            if relevante and bloco_atual:
+                resultados.append("".join(bloco_atual).strip())
+            bloco_atual = [linha]
+            relevante = termo in linha.lower()
+        else:
+            bloco_atual.append(linha)
+            if termo in linha.lower():
+                relevante = True
+
+    if relevante and bloco_atual:
+        resultados.append("".join(bloco_atual).strip())
+
+    if resultados:
+        return json.dumps({"status": "encontrado", "conteudo": "\n\n".join(resultados)}, ensure_ascii=False)
+    
+    return json.dumps({"status": "nao_encontrado", "mensagem": "Nenhum procedimento especifico encontrado."}, ensure_ascii=False)
 
 
-def registrar_demanda(cliente: str, categoria: str, urgencia: str, resumo: str) -> str:
+def registrar_demanda(cliente: str, categoria: CategoriaType, urgencia: UrgenciaType, resumo: str) -> str:
     """
-    Registra uma solicitacao ou chamado no sistema interno / planilha de operacoes.
+    Registra um chamado ou incidente diretamente no banco de dados relacional SQLite de operacoes.
     
     Args:
-        cliente: Nome ou identificador do cliente/remetente.
-        categoria: Categoria da solicitacao (ex: 'Suporte Tecnico', 'Financeiro', 'Comercial', 'Outros').
-        urgencia: Nivel de criticidade ('BAIXA', 'MEDIA', 'ALTA', 'CRITICA').
+        cliente: Nome ou identificador do cliente/solicitante.
+        categoria: Categoria estrita da demanda ('Suporte Tecnico', 'Financeiro', 'Comercial', 'Operacoes', 'Outros').
+        urgencia: Nivel de criticidade estrito ('BAIXA', 'MEDIA', 'ALTA', 'CRITICA').
         resumo: Sintese em 1 linha do problema ou pedido.
     """
+    inicializar_banco()
+    sufixo_unico = uuid.uuid4().hex[:6].upper()
+    protocolo = f"REQ-{datetime.now().strftime('%Y%m%d')}-{sufixo_unico}"
+    data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    status = "REGISTRADO"
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO chamados (protocolo, data_hora, cliente, categoria, urgencia, resumo, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (protocolo, data_hora, cliente, categoria, urgencia, resumo, status))
+        conn.commit()
+
     registro = {
-        "id_protocolo": f"REQ-{datetime.now().strftime('%H%M%S')}",
-        "data_hora": datetime.now().isoformat(),
+        "protocolo": protocolo,
+        "data_hora": data_hora,
         "cliente": cliente,
         "categoria": categoria,
-        "urgencia": urgencia.upper(),
+        "urgencia": urgencia,
         "resumo": resumo,
-        "status": "REGISTRADO"
+        "status": status,
+        "armazenamento": "SQLite (data/ops_triage.db)"
     }
-    print(f"\n[TOOL EXECUTADA] registrar_demanda: {registro['id_protocolo']} | {cliente} | Urgencia: {registro['urgencia']}")
+    print(f"\n💾 [TOOL] registrar_demanda: Gravado em SQLite -> {protocolo} | {cliente} | {urgencia}")
     return json.dumps(registro, ensure_ascii=False)
+
+
+def listar_historico_chamados(cliente: str) -> str:
+    """
+    Consulta o historico de chamados anteriores ja registrados para um determinado cliente no SQLite.
+    
+    Args:
+        cliente: Nome ou parte do nome do solicitante para pesquisa.
+    """
+    print(f"\n🔍 [TOOL] listar_historico_chamados(cliente='{cliente}')")
+    inicializar_banco()
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT protocolo, data_hora, cliente, categoria, urgencia, resumo, status
+            FROM chamados
+            WHERE cliente LIKE ?
+            ORDER BY id DESC
+            LIMIT 5
+        """, (f"%{cliente}%",))
+        rows = cursor.fetchall()
+
+    if rows:
+        historico = [dict(row) for row in rows]
+        return json.dumps({"status": "sucesso", "total": len(historico), "chamados": historico}, ensure_ascii=False)
+    
+    return json.dumps({"status": "vazio", "mensagem": f"Nenhum chamado anterior encontrado para '{cliente}'."}, ensure_ascii=False)
 
 
 def enviar_alerta_slack(canal: str, mensagem: str) -> str:
     """
-    Dispara um alerta imediato no Slack / Teams para a equipe responsavel.
-    Deve ser usada principalmente para demandas com urgencia ALTA ou CRITICA.
+    Dispara uma notificacao emergencial para a equipe no Slack / Teams.
+    Deve ser acionado prioritariamente para incidentes de urgencia ALTA ou CRITICA.
     
     Args:
         canal: Nome do canal de destino (ex: '#operacoes-criticas', '#suporte-geral').
@@ -68,5 +163,5 @@ def enviar_alerta_slack(canal: str, mensagem: str) -> str:
         "mensagem": mensagem,
         "timestamp": datetime.now().isoformat()
     }
-    print(f"\n[TOOL EXECUTADA] enviar_alerta_slack no canal '{canal}': {mensagem}")
+    print(f"\n🚨 [TOOL] enviar_alerta_slack no canal '{canal}':\n{mensagem}\n")
     return json.dumps(alerta, ensure_ascii=False)

@@ -7,10 +7,15 @@ ENV/
 # Arquivos de configuracao e chaves de API secretas (NUNCA SUBIR)
 .env
 
-# Cache do Python
+# Cache do Python e Testes
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+
+# Banco de dados local gerado em tempo de execucao
+data/*.db
+data/*.csv
 
 # Arquivos temporarios de SO
 .DS_Store

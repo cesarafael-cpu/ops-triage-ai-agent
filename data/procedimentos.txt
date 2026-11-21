@@ -1,0 +1,28 @@
+# BASE DE CONHECIMENTO E PROCEDIMENTOS INTERNOS (SLA & GOVERNANÇA OPERACIONAL)
+
+[POLITICA DE REEMBOLSO E CANCELAMENTO]
+O cliente possui direito legal e contratual a cancelamento com reembolso integral em até 7 dias corridos após a contratação inicial (conforme Código de Defesa do Consumidor - Art. 49).
+- Procedimento: Fornecer o link oficial para autoatendimento: empresa.com/reembolso.
+- Prazos de Liquidação:
+  * Pagamento via PIX: Estorno em até 48 horas úteis.
+  * Pagamento via Cartão de Crédito: Estorno processado em até 2 ciclos de fatura da operadora.
+- Exceções: Solicitações após 7 dias requerem aprovação formal da gerência financeira (financeiro@empresa.com).
+
+[INCIDENTES CRÍTICOS E DISPONIBILIDADE DE SISTEMAS]
+Classificação de Indisponibilidade:
+- Qualquer queda total de serviços de autenticação, banco de dados principal ou API de clientes que afete múltiplos usuários é um incidente de severidade 'CRITICA'.
+- Procedimento Operacional:
+  1. Registrar imediatamente o chamado interno com urgência 'CRITICA'.
+  2. Disparar notificação em tempo real para o canal de emergência '#operacoes-criticas' no Slack/Teams.
+  3. Instruir o solicitante quanto a medidas paliativas (ex: uso de abas anônimas, limpeza de cookies e verificação de rede local).
+  4. SLA de Primeira Resposta da Engenharia: 15 minutos.
+
+[FATURAMENTO, NOTAS FISCAIS E CADASTRO]
+- Emissão Automática: Notas Fiscais Eletrônicas (NF-e) são emitidas no 5º dia útil de cada mês.
+- Alteração Cadastral: Mudanças de Razão Social, CNPJ ou endereço de cobrança exigem envio de comprovante recente para financeiro@empresa.com.
+- Segunda via de boletos: Disponível no portal do cliente na aba 'Faturamento'.
+
+[POLÍTICA COMERCIAL E DESCONTOS ENTERPRISE]
+- Upgrades de Plano (Basic -> Pro ou Enterprise):
+  * Clientes solicitando upgrade para o plano Enterprise têm elegibilidade a 15% de desconto no primeiro trimestre mediante contrato anual.
+  * Encaminhar o caso com o histórico do cliente para o time de vendas: comercial@empresa.com.

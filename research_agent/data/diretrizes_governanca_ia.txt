@@ -1,0 +1,17 @@
+# DIRETRIZES DE GOVERNANÇA, ÉTICA E CONFORMIDADE DE IA (FRAMEWORK CORPORATIVO 2026)
+Órgão Emissor: Comitê de Risco e Segurança da Informação
+Versão: 2.4 - Vigência: 2026/2027
+
+[CLASSIFICAÇÃO DE RISCO DE MODELOS DE IA]
+Todos os agentes e sistemas autônomos implantados na companhia devem ser enquadrados em três categorias de criticidade:
+- Nível 1 (Risco Crítico / Alto Impacto): Agentes que realizam transações financeiras automáticas, autorização de crédito ou decisões jurídicas sem supervisão imediata. Exigem auditoria mensal de logs e avaliação obrigatória de viés algorítmico.
+- Nível 2 (Risco Moderado): Agentes de triagem operacional de suporte, atendimento a clientes e roteamento de chamados. Exigem mecanismo de escalonamento humano obrigatório (Human-in-the-Loop) e registro de auditoria por 12 meses.
+- Nível 3 (Baixo Risco): Ferramentas de apoio interno, formatação de relatórios e busca semântica em base pública. Dispensam comitê prévio, mantendo apenas monitoramento de consumo de tokens.
+
+[PROTEÇÃO DE DADOS E ISOLAMENTO DE PROMPTS]
+É estritamente vedado o envio de dados pessoais identificáveis (PII - como CPF, dados de saúde e senhas de clientes) diretamente em prompts de modelos públicos de terceiros.
+As chamadas de API devem obrigatoriamente utilizar conexões criptografadas (TLS 1.3) e chaves armazenadas em variáveis de ambiente gerenciadas (KMS ou secrets vaults), nunca chaves fixas em código.
+
+[POLÍTICA DE RETENÇÃO E AUDITORIA DE EMBEDDINGS]
+Bases vetoriais geradas a partir de documentos internos confidenciais devem residir em instâncias isoladas ou em memória volátil de execução.
+A expiração padrão de caches vetoriais de relatórios de auditoria é de 90 dias após a homologação do relatório.

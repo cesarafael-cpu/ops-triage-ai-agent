@@ -1,0 +1,22 @@
+# RELATÓRIO TRIMESTRAL DE RESULTADOS - TECHCORP S.A. (Q3 2026)
+Data de Publicação: 15 de Outubro de 2026
+Classificação: Divulgação aos Acionistas
+
+[RESUMO EXECUTIVO E PERFORMANCE FINANCEIRA]
+A TechCorp encerrou o terceiro trimestre de 2026 com uma receita líquida consolidada de R$ 420 milhões, representando um crescimento de 28% em relação ao mesmo período do ano anterior (R$ 328 milhões no Q3 2025).
+O EBITDA ajustado atingiu R$ 115 milhões, com margem EBITDA de 27,4%, impulsionada principalmente pela expansão da linha de soluções corporativas baseadas em IA generativa (TechAI Enterprise).
+O lucro líquido foi de R$ 68 milhões, comparado a R$ 45 milhões no Q3 2025 (+51%).
+
+[ALOCAÇÃO DE CAPITAL E CAPEX EM INTELIGÊNCIA ARTIFICIAL]
+Durante o trimestre, a companhia investiu R$ 54 milhões em CAPEX tecnológico, dos quais 65% (aproximadamente R$ 35,1 milhões) foram destinados à aquisição de capacidade computacional (GPU clusters) e parcerias estratégicas de infraestrutura em nuvem.
+O projeto 'Autonomous Ops' já reduziu o custo operacional de suporte técnico de nível 1 em 42%, gerando uma economia anualizada projetada de R$ 18,5 milhões.
+
+[RISCOS OPERACIONAIS E FATORES DE INCERTEZA]
+Apesar dos fortes resultados operacionais, a administração destaca três riscos materiais para o encerramento do exercício de 2026:
+1. Dependência de Fornecedores de Hardware: Escassez global de chips avançados de aceleração e reajustes contratuais de provedores cloud podem pressionar as margens no Q4.
+2. Segurança e Conformidade Regulatória: A entrada em vigor de novas exigências de auditoria de algoritmos (Marco Regulatório de IA) demandará adequação contínua dos modelos proprietários.
+3. Churn no Segmento PME: O segmento de pequenas e médias empresas apresentou cancelamento líquido de 4,2%, reflexo da taxa básica de juros elevada sobre o caixa desses clientes.
+
+[PROJEÇÕES E GUIDANCE PARA 2027]
+Para o ano fiscal de 2027, a companhia projeta receita líquida entre R$ 1,8 bilhão e R$ 2,0 bilhões, com expectativa de que a vertical de Agentes de IA represente 45% do faturamento total.
+A empresa planeja uma recompra de ações ordinárias de até R$ 50 milhões nos próximos 6 meses.
